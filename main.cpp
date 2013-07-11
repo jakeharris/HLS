@@ -18,7 +18,7 @@ using namespace std;
   //extern queue crunched;
   //extern queue gobbled;
   const char * FILENAME = "test.txt";
-
+  int numLines = 0;
 
 void * go_producer(void *arg){
   /* SETUP */
@@ -41,10 +41,12 @@ void * go_producer(void *arg){
   while(!infile.eof()){
     getline(infile, line);
     /* LOCK */ pthread_mutex_lock(&mutex);
-    cout << line << endl;;
+    cout << line << endl;
+    numLines++;
     //produced.push(line);
     /* UNLOCK */ pthread_mutex_unlock(&mutex);
   }
+  cout << "Number of lines: " << numLines << endl;
   producer_is_done = true;
   pthread_exit(NULL);
 }
