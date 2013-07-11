@@ -41,7 +41,6 @@ void * go_producer(void *arg){
   while(!infile.eof()){
     getline(infile, line);
     /* LOCK */ pthread_mutex_lock(&mutex);
-    cout << line << endl;
     numLines++;
     //produced.push(line);
     /* UNLOCK */ pthread_mutex_unlock(&mutex);
@@ -63,7 +62,37 @@ void setup_producer(){
 */
 }
 void * go_cruncher(void* arg){
-  
+   
+  /* SETUP */
+  /* LOCK */ pthread_mutex_lock(&mutex);
+
+  /* Initialization */
+  ifstream infile;
+  string line;
+  string crunchedLine;
+  /* Queue allocation */
+  /* malloc(produced) */
+  /* etc. */
+
+  /* UNLOCK */ pthread_mutex_unlock(&mutex);
+  /* END SETUP */
+
+  while(!producer_is_done){
+    /* Reading in from queue */
+    infile.open(FILENAME); //this will actually be a char * or something that grabs from the queue
+    if(infile.good()){
+      /* LOCK */ pthread_mutex_lock(&mutex);
+      crunchedLine = "";
+      while(!infile.eof()){ //this will actually just read through the char*
+        getline(infile, line, ' ');
+        //produced.pop(line);
+        crunchedLine += line + '*';
+      }
+      
+      /* UNLOCK */ pthread_mutex_unlock(&mutex);
+    }
+  }
+  cout << crunchedLine << endl;
 }
 
 
