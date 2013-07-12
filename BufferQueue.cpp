@@ -5,7 +5,7 @@ pointers to character arrays of read in strings. */
 
 using namespace std;
 
-class BufferQueue{ 
+class BufferQueue { 
     static const int X = 10; // the constant size of the buffer
     char* buffer[X];         // declaration of the buffer
     int head;                // tracks the head of the buffer
@@ -26,14 +26,14 @@ BufferQueue::BufferQueue(){
   tail = 0;
 }
 
-void BufferQueue::add(char sInput[]){
+void BufferQueue::add(char sInput[]) {
   /* Check to see if the buffer is full, if not then increment tail. */
-  if(isEmpty()) {
+  if (isEmpty()) {
     buffer[head] = sInput;
     tail++;
   }
   
-  else if(tail <= 9 && head != tail){
+  else if (tail <= 9 && head != tail) {
     buffer[tail] = sInput;
     tail++;
   }
@@ -84,7 +84,7 @@ bool BufferQueue::isFull() {
 
 bool BufferQueue::isEmpty() {
   for (int x = 0; x < 10; x++) {
-    if(buffer[x] != NULL || strcmp(buffer[x], "") == 0) return false;
+    if (buffer[x] != NULL) return false;
   }
   return true;
 }

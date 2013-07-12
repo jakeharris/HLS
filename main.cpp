@@ -44,7 +44,7 @@ void * producer(void * arg) {
     cout << endl;
     
     pthread_mutex_lock(&m);
-//    produced -> add(str); // <-- THIS LINE CAUSES A SEGFAULT!!!
+    produced -> add(str);
     pthread_mutex_unlock(&m);
   }
   
