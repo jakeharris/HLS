@@ -11,10 +11,13 @@ using namespace std;
 /* Initialize variables. */
 pthread_mutex_t m;
 pthread_t a, b, c, d;
-bool producer_is_done, consumer_is_done, gobbler_is_done;
-      producer_is_done = consumer_is_done = gobbler_is_done = false;
-BufferQueue * produced, crunched, gobbled;
+BufferQueue * produced;
+BufferQueue * crunched;
+BufferQueue * gobbled;
 int numLines = 0;
+bool producer_is_done = false;
+bool cruncher_is_done = false;
+bool gobbler_is_done = false;
 
 /* Producer
  * Read lines from stdin. */
@@ -123,13 +126,13 @@ int main() {
   /* Make threads. */
   pthread_create(&a, NULL, &producer, NULL);
   pthread_create(&b, NULL, &crunch, NULL);
-//  pthread_create(&c, NULL, &gobble, NULL);
+  pthread_create(&c, NULL, &gobble, NULL);
 //  pthread_create(&d, NULL, &consumer, NULL);
   
   /* Join threads. */
   pthread_join(a, NULL);
   pthread_join(b, NULL);
-//  pthread_join(c, NULL);
+  pthread_join(c, NULL);
 //  pthread_join(d, NULL);
 
   return 0;
