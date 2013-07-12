@@ -28,9 +28,7 @@ int numLines = 0;
 ****************/
 void * go_producer(void * arg) {
   /* SETUP */
-  cout << "GO_PRODUCER METHOD, before pthread_mutex_lock.\n";
   /* L */ pthread_mutex_lock(&amutex);
-  cout << "GO_PRODUCER METHOD, at the top of pthread_mutex_lock.\n";
   
   /* Initialization */
   ifstream infile;
@@ -66,7 +64,6 @@ void * go_producer(void * arg) {
 }
 
 void setup_producer() {
-  cout << "SETUP_PRODUCER METHOD, before pthread_create.\n";
   if (pthread_create(&producer, NULL, &go_producer, NULL)) {
     printf("ERROR: Thread creation failed (THREAD: producer).\n");
     exit(-1);
@@ -147,15 +144,10 @@ void setup_consumer() {
 * MAIN          *
 ****************/
 int main() {
-  cout << "MAIN METHOD, before setup_producer.\n";
   setup_producer();
-  cout << "MAIN METHOD, after setup_producer.\n";
-//  cout << "MAIN METHOD, before setup_crucher.\n";
-//  setup_cruncher();
-//  cout << "MAIN METHOD, before setup_gobbler.\n";
-//  setup_gobbler();
-//  cout << "MAIN METHOD, before setup_consumer.\n";
-//  setup_consumer();
+  setup_cruncher();
+  setup_gobbler();
+  setup_consumer();
 
   return 0;
 }
