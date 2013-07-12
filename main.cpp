@@ -39,16 +39,17 @@ void * producer(void * arg) {
     numLines++;
     char * str = new char[line.length() + 1];
     strcpy(str, line.c_str());
-    cout << "Waiting.";
-    while (produced -> isFull()) { cout << "."; }
-    cout << endl;
+    printf("Waiting.");
+    int x = 0;
+    while (produced -> isFull() && x < 10 ) { printf("."); x++; }
+    printf("\n");
     
     pthread_mutex_lock(&m);
     produced -> add(str);
     pthread_mutex_unlock(&m);
   }
-  
-  cout << "Number of lines: " << numLines << endl;
+
+  printf("Number of lines: %u\n", numLines);
   producer_is_done = true;
   pthread_exit(NULL);
   return NULL;
@@ -58,27 +59,28 @@ void * producer(void * arg) {
  * Replace whitespace with stars. */
 void * crunch(void * arg) {
 //  while (!producer_is_done && !produced -> isEmpty()) { // <-- THIS LINE CAUSES A SEGFAULT!!!
-//    char * crunchee;
-//    
-//    /* Reading in from queue. */
-//    while(produced -> isEmpty()) {}
-//    
-//    pthread_mutex_lock(&m);
-//    crunchee = produced -> remove();
-//    pthread_mutex_unlock(&m);
-//    
-//    if (crunchee != NULL) {
-//      /* Swapping spaces for asterisks. */
-//      for (int x = 0; x < strlen(crunchee); x++) { 
-//        crunchee[x] = (crunchee[x] == ' ') ? '*' : crunchee[x];
-//      }
-//
-//      /* Writing to queue. */
-//      pthread_mutex_lock(&m);
-//      cout << crunchee << endl;
-//      pthread_mutex_unlock(&m);
-//    }
-//  } 
+  while (!producer_is_done) {
+    char * crunchee;
+    
+    /* Reading in from queue. */
+    // while (produced -> isEmpty()) {}
+    
+    pthread_mutex_lock(&m);
+    crunchee = produced -> remove();
+    pthread_mutex_unlock(&m);
+    
+    if (crunchee != NULL) {
+      /* Swapping spaces for asterisks. */
+      for (int x = 0; x < strlen(crunchee); x++) { 
+        crunchee[x] = (crunchee[x] == ' ') ? '*' : crunchee[x];
+      }
+
+      /* Writing to queue. */
+      pthread_mutex_lock(&m);
+      printf("%s\n", crunchee);
+      pthread_mutex_unlock(&m);
+    }
+  }
   return NULL;
 }
 

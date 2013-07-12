@@ -22,13 +22,14 @@ class BufferQueue {
 
 /* Constructor */
 BufferQueue::BufferQueue(){
-  head = 0;
-  tail = 0;
+  head = -1;
+  tail = -1;
 }
 
 void BufferQueue::add(char sInput[]) {
   /* Check to see if the buffer is full, if not then increment tail. */
   if (isEmpty()) {
+    head = tail = 0;
     buffer[head] = sInput;
     tail++;
   }
@@ -47,7 +48,7 @@ void BufferQueue::add(char sInput[]) {
   
   /* If neither then the buffer is full. */
   else {
-    cout << "Error: Buffer is full.\n";
+    printf("Error: Buffer is full.\n");
   }
 }
 
@@ -55,7 +56,7 @@ char* BufferQueue::remove(){
   /* If head == tail then buffer is empty. */
   char* output;
   if (buffer[head] == NULL) {
-    cout << "Error: Buffer is empty.\n";
+    printf("Error: Buffer is empty.\n");
     return (char *) "";
   }
   
@@ -72,6 +73,8 @@ char* BufferQueue::remove(){
     buffer[head] = NULL;
     head++;
   }
+  
+  if (head == tail + 1) { head = -1; tail = -1; }
   return output;
 }
 
@@ -83,10 +86,9 @@ bool BufferQueue::isFull() {
 }
 
 bool BufferQueue::isEmpty() {
-  for (int x = 0; x < 10; x++) {
-    if (buffer[x] != NULL) return false;
-  }
-  return true;
+  if(head == -1 || tail == -1) 
+    return true;
+  return false;
 }
 
 char * BufferQueue::getHead() {
