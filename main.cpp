@@ -63,23 +63,23 @@ void * crunch(void * arg) {
     char * crunchee;
     
     /* Reading in from queue. */
-    // while (produced -> isEmpty()) {}
+//    while (produced -> isEmpty()) {}
     
-    pthread_mutex_lock(&m);
-    crunchee = produced -> remove();
-    pthread_mutex_unlock(&m);
-    
-    if (crunchee != NULL) {
-      /* Swapping spaces for asterisks. */
-      for (int x = 0; x < strlen(crunchee); x++) { 
-        crunchee[x] = (crunchee[x] == ' ') ? '*' : crunchee[x];
-      }
-
-      /* Writing to queue. */
-      pthread_mutex_lock(&m);
-      printf("%s\n", crunchee);
-      pthread_mutex_unlock(&m);
-    }
+//    pthread_mutex_lock(&m);
+//    crunchee = produced -> remove();
+//    pthread_mutex_unlock(&m);
+//    
+//    if (crunchee != NULL) {
+//      /* Swapping spaces for asterisks. */
+//      for (int x = 0; x < strlen(crunchee); x++) { 
+//        crunchee[x] = (crunchee[x] == ' ') ? '*' : crunchee[x];
+//      }
+//
+//      /* Writing to queue. */
+//      pthread_mutex_lock(&m);
+//      printf("%s\n", crunchee);
+//      pthread_mutex_unlock(&m);
+//    }
   }
   return NULL;
 }

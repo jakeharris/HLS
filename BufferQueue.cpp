@@ -29,7 +29,8 @@ BufferQueue::BufferQueue(){
 void BufferQueue::add(char sInput[]) {
   /* Check to see if the buffer is full, if not then increment tail. */
   if (isEmpty()) {
-    head = tail = 0;
+    head = 0;
+    tail = 0;
     buffer[head] = sInput;
     tail++;
   }
@@ -52,7 +53,7 @@ void BufferQueue::add(char sInput[]) {
   }
 }
 
-char* BufferQueue::remove(){
+char* BufferQueue::remove() {
   /* If head == tail then buffer is empty. */
   char* output;
   if (buffer[head] == NULL) {
@@ -86,9 +87,7 @@ bool BufferQueue::isFull() {
 }
 
 bool BufferQueue::isEmpty() {
-  if(head == -1 || tail == -1) 
-    return true;
-  return false;
+  return (head == -1 || tail == -1);
 }
 
 char * BufferQueue::getHead() {
