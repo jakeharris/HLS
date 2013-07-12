@@ -8,44 +8,31 @@
 
 using namespace std;
 
-/****************
-* SETUP         *
-****************/
-pthread_t producer,
-          cruncher,
-          gobbler,
-          consumer;
-pthread_mutex_t amutex;
+pthread_mutex_t m;
+pthread_t a, b, c, d;
 bool producer_is_done = false;
 BufferQueue * produced;
-BufferQueue * crunched;
-BufferQueue * gobbled;
-const char * FILENAME = "test.txt";
+//BufferQueue * crunched;
+//BufferQueue * gobbled;
 int numLines = 0;
 
-/****************
-* PRODUCER      *
-****************/
-void * go_producer(void * arg) {
+void * producer(void * arg) {
   /* SETUP */
-  /* L */ pthread_mutex_lock(&amutex);
+  pthread_mutex_lock(&m);
   
   /* Initialization */
-  ifstream infile;
-  infile.open(FILENAME);
   string line;
 
   /* Queue allocation */
   produced = new BufferQueue();
-  crunched = new BufferQueue();
-  gobbled = new BufferQueue();
+//  crunched = new BufferQueue();
+//  gobbled = new BufferQueue();
   
-  /* U */ pthread_mutex_unlock(&amutex);
+  pthread_mutex_unlock(&m);
   /* END SETUP */
   
   /* Reading in from file. */
-  while (!infile.eof()) {
-    getline(infile, line);
+  while (getline(cin, line)) {
     numLines++;
     char * str = new char[line.length() + 1];
     strcpy(str, line.c_str());
@@ -53,101 +40,64 @@ void * go_producer(void * arg) {
     while (produced->isFull()) { cout << "."; }
     cout << endl;
     
-    /* L */ pthread_mutex_lock(&amutex);
-    produced->add(str);
-    /* U */ pthread_mutex_unlock(&amutex);
+    pthread_mutex_lock(&m);
+    produced -> add(str);
+    pthread_mutex_unlock(&m);
   }
   
   cout << "Number of lines: " << numLines << endl;
   producer_is_done = true;
   pthread_exit(NULL);
-}
-
-void setup_producer() {
-  if (pthread_create(&producer, NULL, &go_producer, NULL)) {
-    printf("ERROR: Thread creation failed (THREAD: producer).\n");
-    exit(-1);
-  }
-}
-
-/****************
-* CRUNCHER      *
-****************/
-void * go_cruncher(void * arg) {
-  while (!producer_is_done && !produced -> isEmpty()) {
-    char * crunchee;
-    
-    /* Reading in from queue. */
-    while(produced->isEmpty()) { }
-    
-    /* L */ pthread_mutex_lock(&amutex);
-    crunchee = produced->remove();
-    /* U */ pthread_mutex_unlock(&amutex);
-    
-    if (crunchee != NULL) {
-      /* Swapping spaces for asterisks. */
-      for (int x = 0; x < strlen(crunchee); x++) { 
-        crunchee[x] = (crunchee[x] == ' ') ? '*' : crunchee[x];
-      }
-
-      /* Writing to queue. */
-      /* L */ pthread_mutex_lock(&amutex);
-      cout << crunchee << endl;
-      /* U */ pthread_mutex_unlock(&amutex);
-    }
-  } 
   return NULL;
 }
 
-void setup_cruncher() {
-  if (pthread_create(&cruncher, NULL, &go_cruncher, NULL)) {
-    printf("ERROR: Thread creation failed (THREAD: cruncher).\n");
-    exit(-1);
-  }
-}
+//void * crunch(void * arg) {
+//  while (!producer_is_done && !produced -> isEmpty()) {
+//    char * crunchee;
+//    
+//    /* Reading in from queue. */
+//    while(produced->isEmpty()) { }
+//    
+//    pthread_mutex_lock(&m);
+//    crunchee = produced -> remove();
+//    pthread_mutex_unlock(&m);
+//    
+//    if (crunchee != NULL) {
+//      /* Swapping spaces for asterisks. */
+//      for (int x = 0; x < strlen(crunchee); x++) { 
+//        crunchee[x] = (crunchee[x] == ' ') ? '*' : crunchee[x];
+//      }
+//
+//      /* Writing to queue. */
+//      pthread_mutex_lock(&m);
+//      cout << crunchee << endl;
+//      pthread_mutex_unlock(&m);
+//    }
+//  } 
+//  return NULL;
+//}
+//
+//void * gobble(void * arg) {
+//  return NULL;
+//}
+//
+//void * consumer(void * arg) {
+//  while(!producer_is_done) {}
+//  return NULL;
+//}
 
-/****************
-* GOBBLER       *
-****************/
-void * go_gobbler(void * arg) {
-  /* Go go gadget gobbler. */
-  return NULL;
-}
-
-void setup_gobbler() {
-  if (pthread_create(&gobbler, NULL, &go_gobbler, NULL)) {
-    printf("ERROR: Thread creation failed (THREAD: gobbler).\n");
-    exit(-1);
-  }
-}
-
-/****************
-* CONSUMER      *
-****************/
-void * go_consumer(void * arg) {
-  while(!producer_is_done) {}
-  return NULL;
-}
-
-void setup_consumer() {
-  if (pthread_create(&consumer, NULL, &go_consumer, NULL)) {
-    printf("ERROR: Thread creation failed (THREAD: consumer).\n");
-    exit(-1);
-  }
-//  if (pthread_join(consumer, NULL)) {
-//    printf("ERROR: Thread joining failed (THREAD: consumer). \n");
-//    exit(-1);
-//  }
-}
-
-/****************
-* MAIN          *
-****************/
 int main() {
-  setup_producer();
-  setup_cruncher();
-  setup_gobbler();
-  setup_consumer();
+  /* Make threads. */
+  pthread_create(&a, NULL, &producer, NULL);
+//  pthread_create(&b, NULL, &crunch, NULL);
+//  pthread_create(&c, NULL, &gobble, NULL);
+//  pthread_create(&d, NULL, &consumer, NULL);
+  
+  /* Join threads. */
+  pthread_join(a, NULL);
+//  pthread_join(b, NULL);
+//  pthread_join(c, NULL);
+//  pthread_join(d, NULL);
 
   return 0;
 }
