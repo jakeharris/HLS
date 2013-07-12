@@ -32,19 +32,16 @@ void BufferQueue::add(char sInput[]) {
     head = 0;
     tail = 0;
     buffer[head] = sInput;
-    tail++;
   }
   
-  else if (tail <= 9 && head != tail) {
-    buffer[tail] = sInput;
-    tail++;
+  else if (tail < X && head != tail) {
+    buffer[++tail] = sInput;
   }
   
   /* If tail has reached the end check if the first index of the buffer is available. */
-  else if ((tail > 9) && (head != 0)) {
+  else if ((tail >= X) && (head != 0)) {
     tail = 0;
-    buffer[tail] = sInput;
-    tail++;
+    buffer[++tail] = sInput;
   }
   
   /* If neither then the buffer is full. */
@@ -62,7 +59,7 @@ char* BufferQueue::remove() {
   }
   
   /* If head has reached the end check if the first index of the buffer is available; if so store in first index. */
-  else if ((head == 9) && (tail != 0)) {
+  else if ((head == (X - 1)) && (tail != 0)) {
     output = buffer[head];
     buffer[head] = NULL;
     head = 0;
@@ -75,15 +72,12 @@ char* BufferQueue::remove() {
     head++;
   }
   
-  if (head == tail + 1) { head = -1; tail = -1; }
+  if (isFull()) { head = -1; tail = -1; }
   return output;
 }
 
 bool BufferQueue::isFull() {
-  for (int x = 0; x < 10; x++) {
-    if(buffer[x] == NULL) return false;
-  }
-  return true;
+  return ((head == tail + 1) || (head == 0 && tail >= X));
 }
 
 bool BufferQueue::isEmpty() {

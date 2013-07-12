@@ -11,10 +11,9 @@ using namespace std;
 /* Initialize variables. */
 pthread_mutex_t m;
 pthread_t a, b, c, d;
-bool producer_is_done = false;
-BufferQueue * produced;
-BufferQueue * crunched;
-// BufferQueue * gobbled;
+bool producer_is_done, consumer_is_done, gobbler_is_done;
+      producer_is_done = consumer_is_done = gobbler_is_done = false;
+BufferQueue * produced, crunched, gobbled;
 int numLines = 0;
 
 /* Producer
@@ -29,7 +28,7 @@ void * producer(void * arg) {
   /* Queue allocation */
   produced = new BufferQueue();
   crunched = new BufferQueue();
-//  gobbled = new BufferQueue();
+  gobbled = new BufferQueue();
   
   pthread_mutex_unlock(&m);
   /* END SETUP */
@@ -40,8 +39,7 @@ void * producer(void * arg) {
     char * str = new char[line.length() + 1];
     strcpy(str, line.c_str());
     printf("Waiting.");
-    int x = 0;
-    while (produced -> isFull() && x < 10 ) { printf("."); x++; }
+    while (produced -> isFull()) { printf("."); }
     printf("\n");
     
     pthread_mutex_lock(&m);
@@ -51,44 +49,66 @@ void * producer(void * arg) {
 
   printf("Number of lines: %u\n", numLines);
   producer_is_done = true;
-  pthread_exit(NULL);
   return NULL;
 }
 
 /* Crunch
  * Replace whitespace with stars. */
 void * crunch(void * arg) {
-//  while (!producer_is_done && !produced -> isEmpty()) { // <-- THIS LINE CAUSES A SEGFAULT!!!
-  while (!producer_is_done) {
+  while (!producer_is_done || !produced -> isEmpty()) {
     char * crunchee;
     
     /* Reading in from queue. */
-//    while (produced -> isEmpty()) {}
+    while (produced -> isEmpty()) { }
     
-//    pthread_mutex_lock(&m);
-//    crunchee = produced -> remove();
-//    pthread_mutex_unlock(&m);
-//    
-//    if (crunchee != NULL) {
-//      /* Swapping spaces for asterisks. */
-//      for (int x = 0; x < strlen(crunchee); x++) { 
-//        crunchee[x] = (crunchee[x] == ' ') ? '*' : crunchee[x];
-//      }
-//
-//      /* Writing to queue. */
-//      pthread_mutex_lock(&m);
-//      printf("%s\n", crunchee);
-//      pthread_mutex_unlock(&m);
-//    }
+    pthread_mutex_lock(&m);
+    crunchee = produced -> remove();
+    pthread_mutex_unlock(&m);
+    
+    if (crunchee != NULL) {
+      /* Swapping spaces for asterisks. */
+      for (int x = 0; x < strlen(crunchee); x++) { 
+        crunchee[x] = (crunchee[x] == ' ') ? '*' : crunchee[x];
+      }
+
+      /* Writing to queue. */
+      pthread_mutex_lock(&m);
+      crunched -> add(crunchee);
+      pthread_mutex_unlock(&m);
+    }
   }
+  cruncher_is_done = true;
   return NULL;
 }
 
 /* Gobble
  * Uppercase everything. */
-//void * gobble(void * arg) {
-//  return NULL;
-//}
+void * gobble(void * arg) {
+  while (!cruncher_is_done || !crunched -> isEmpty()) {
+    char * gobblee;
+    
+    /* Reading in from queue. */
+    while (crunched -> isEmpty()) { }
+    
+    pthread_mutex_lock(&m);
+    gobblee = crunched -> remove();
+    pthread_mutex_unlock(&m);
+    
+    if (gobblee != NULL) {
+      /* Swapping lower-case letters for upper-case ones. */
+      for (int x = 0; x < strlen(gobblee); x++) { 
+        gobblee[x] = toupper(gobblee[x]);
+      }
+
+      /* Writing to queue. */
+      pthread_mutex_lock(&m);
+      printf("%s\n", gobblee);
+      pthread_mutex_unlock(&m);
+    }
+  }
+  gobbler_is_done = true;
+  return NULL;
+}
 
 /* Consumer
  * Write buffer to file. */
