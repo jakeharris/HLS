@@ -1,10 +1,10 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string>
+#include <string.h>
 #include <fstream>
 #include <iostream>
-
+#include "BufferQueue.cpp"
 
 using namespace std;
 
@@ -14,9 +14,9 @@ using namespace std;
             consumer;
   pthread_mutex_t mutex;
   bool producer_is_done = false;
-  //extern queue produced;
-  //extern queue crunched;
-  //extern queue gobbled;
+  BufferQueue * produced;
+  BufferQueue * crunched;
+  BufferQueue * gobbled;
   const char * FILENAME = "test.txt";
   int numLines = 0;
 
@@ -30,9 +30,9 @@ void * go_producer(void *arg){
   string line;
 
   /* Queue allocation */
-  /* malloc(produced) */
-  /* etc. */
-
+  produced = new BufferQueue();
+  crunched = new BufferQueue();
+  gobbled = new BufferQueue();
   /* UNLOCK */ pthread_mutex_unlock(&mutex);
   /* END SETUP */
 
@@ -40,9 +40,14 @@ void * go_producer(void *arg){
   /* Reading in from file */
   while(!infile.eof()){
     getline(infile, line);
-    /* LOCK */ pthread_mutex_lock(&mutex);
     numLines++;
-    //produced.push(line);
+    char * str = new char[line.length() + 1];
+    strcpy(str, line.c_str());
+    cout << "Waiting.";
+    while(produced->isFull()){ cout << ".";}
+    cout << endl;
+    /* LOCK */ pthread_mutex_lock(&mutex);
+    produced->add(str);
     /* UNLOCK */ pthread_mutex_unlock(&mutex);
   }
   cout << "Number of lines: " << numLines << endl;
@@ -62,37 +67,26 @@ void setup_producer(){
 */
 }
 void * go_cruncher(void* arg){
-   
-  /* SETUP */
-  /* LOCK */ pthread_mutex_lock(&mutex);
-
-  /* Initialization */
-  ifstream infile;
-  string line;
-  string crunchedLine;
-  /* Queue allocation */
-  /* malloc(produced) */
-  /* etc. */
-
-  /* UNLOCK */ pthread_mutex_unlock(&mutex);
-  /* END SETUP */
-
-  while(!producer_is_done){
+  
+  while(!producer_is_done && !produced->isEmpty()){
+    char* crunchee;
     /* Reading in from queue */
-    infile.open(FILENAME); //this will actually be a char * or something that grabs from the queue
-    if(infile.good()){
-      /* LOCK */ pthread_mutex_lock(&mutex);
-      crunchedLine = "";
-      while(!infile.eof()){ //this will actually just read through the char*
-        getline(infile, line, ' ');
-        //produced.pop(line);
-        crunchedLine += line + '*';
+    while(produced->isEmpty()){ }
+    /* LOCK */ pthread_mutex_lock(&mutex);
+    crunchee = produced->remove();
+    /* UNLOCK */ pthread_mutex_unlock(&mutex);
+    if(crunchee != NULL){
+      /* Swapping spaces for asterisks */
+      for(int x = 0; x < strlen(crunchee); x++){ 
+        crunchee[x] = (crunchee[x] == ' ') ? '*' : crunchee[x];
       }
-      
+
+      /* Writing to queue */
+      /* LOCK */ pthread_mutex_lock(&mutex);
+      cout << crunchee << endl;
       /* UNLOCK */ pthread_mutex_unlock(&mutex);
     }
   }
-  cout << crunchedLine << endl;
 }
 
 

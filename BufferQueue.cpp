@@ -11,7 +11,10 @@ class BufferQueue{
   public:
     BufferQueue();
     void add(char sInput[]); //adds an item to the buffer
-    void remove();            //removes an item from the buffer
+    char* remove();            //removes an item from the buffer
+    bool isFull(); //returns true if buffer array is full
+    bool isEmpty(); //returns true if buffer array is empty
+    char* getHead(); //returns the head of the buffer
 };
 /* Constructor */
 BufferQueue::BufferQueue(){
@@ -21,13 +24,17 @@ BufferQueue::BufferQueue(){
 void BufferQueue::add(char sInput[]){
 /* Check to see if the buffer is full, if not then
 increment tail. */
-  if(tail < 9){
+  if(isEmpty()) {
+    buffer[head] = sInput;
+    tail++;
+  }
+  else if(tail <= 9 && head != tail){
     buffer[tail] = sInput;
     tail++;
   }
 /* If tail has reached the end check if the first
 index of the buffer is available. */
-  else if((tail == 9) && (head != 0)){
+  else if((tail > 9) && (head != 0)){
     tail = 0;
     buffer[tail] = sInput;
     tail++;
@@ -38,22 +45,43 @@ index of the buffer is available. */
   }
 }
 
-void BufferQueue::remove(){
+char* BufferQueue::remove(){
 /* If head == tail then buffer is empty. */
-  if(head == tail){
+  char* output;
+  if(buffer[head] == NULL){
     cout << "Error: Buffer is empty.\n";
+    return "";
   }
 /* If head has reached the end check if the first index of
 the buffer is available; if so store in first index. */
   else if((head == 9) && (tail != 0)){
-    head = 0;
+    output = buffer[head];
     buffer[head] = NULL;
-    head++;
+    head = 0;
   }
 /* Else remove current head index from buffer, and increment head. */
   else{
+    output = buffer[head];
     buffer[head] = NULL;
     head++;
   }
+  return output;
 }
 
+bool BufferQueue::isFull(){
+  for(int x = 0; x < 10; x++){
+    if(buffer[x] == NULL) return false;
+  }
+  return true;
+}
+
+bool BufferQueue::isEmpty(){
+  for(int x = 0; x < 10; x++){
+    if(buffer[x] != NULL || buffer[x] == "") return false;
+  }
+  return true;
+}
+
+char* BufferQueue::getHead(){
+  return buffer[head];
+}
