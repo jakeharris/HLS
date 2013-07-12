@@ -21,7 +21,7 @@ class BufferQueue {
 };
 
 /* Constructor */
-BufferQueue::BufferQueue(){
+BufferQueue::BufferQueue() {
   head = -1;
   tail = -1;
 }

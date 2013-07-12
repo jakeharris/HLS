@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include "BufferQueue.cpp"
@@ -41,6 +42,7 @@ void * producer(void * arg) {
     numLines++;
     char * str = new char[line.length() + 1];
     strcpy(str, line.c_str());
+    str[min((int) strlen(str), 63)] = '\0';
     // printf("Waiting.");
     while (produced -> isFull()) { /* printf("."); */ }
     // printf("\n");
@@ -52,7 +54,6 @@ void * producer(void * arg) {
 
   printf("Number of lines: %u\n", numLines);
   producer_is_done = true;
-  printf("I'M DONE PRODUCING!\n");
   return NULL;
 }
 
@@ -82,7 +83,6 @@ void * crunch(void * arg) {
     }
   }
   cruncher_is_done = true;
-  printf("I'M DONE CRUNCHING!\n");
   return NULL;
 }
 
@@ -112,7 +112,6 @@ void * gobble(void * arg) {
     }
   }
   gobbler_is_done = true;
-  printf("I'M DONE GOBBLING!\n");
   return NULL;
 }
 
@@ -131,10 +130,9 @@ void * consumer(void * arg) {
     
     if (consumee != NULL) {
       /* Print to stdout. */
-      // printf("%s\n", consumee);
+      printf("%s\n", consumee);
     }
   }
-  printf("I'M DONE CONSUMING!\n");
   return NULL;
 }
 
