@@ -40,9 +40,9 @@ void * producer(void * arg) {
     while (produced -> isFull()) { cout << "."; }
     cout << endl;
     
-    pthread_mutex_lock(&m);
-    produced -> add(str);
-    pthread_mutex_unlock(&m);
+//    pthread_mutex_lock(&m);
+//    produced -> add(str);
+//    pthread_mutex_unlock(&m);
   }
   
   cout << "Number of lines: " << numLines << endl;
