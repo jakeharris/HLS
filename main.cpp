@@ -41,9 +41,9 @@ void * producer(void * arg) {
     numLines++;
     char * str = new char[line.length() + 1];
     strcpy(str, line.c_str());
-    printf("Waiting.");
-    while (produced -> isFull()) { printf("."); }
-    printf("\n");
+    // printf("Waiting.");
+    while (produced -> isFull()) { /* printf("."); */ }
+    // printf("\n");
     
     pthread_mutex_lock(&m);
     produced -> add(str);
@@ -52,6 +52,7 @@ void * producer(void * arg) {
 
   printf("Number of lines: %u\n", numLines);
   producer_is_done = true;
+  printf("I'M DONE PRODUCING!\n");
   return NULL;
 }
 
@@ -62,7 +63,7 @@ void * crunch(void * arg) {
     char * crunchee;
     
     /* Reading in from queue. */
-    while (produced -> isEmpty()) { }
+    while (produced -> isEmpty()) { if(producer_is_done) break; }
     
     pthread_mutex_lock(&m);
     crunchee = produced -> remove();
@@ -81,6 +82,7 @@ void * crunch(void * arg) {
     }
   }
   cruncher_is_done = true;
+  printf("I'M DONE CRUNCHING!\n");
   return NULL;
 }
 
@@ -91,7 +93,7 @@ void * gobble(void * arg) {
     char * gobblee;
     
     /* Reading in from queue. */
-    while (crunched -> isEmpty()) { }
+    while (crunched -> isEmpty()) { if(cruncher_is_done) break; }
     
     pthread_mutex_lock(&m);
     gobblee = crunched -> remove();
@@ -105,20 +107,36 @@ void * gobble(void * arg) {
 
       /* Writing to queue. */
       pthread_mutex_lock(&m);
-      printf("%s\n", gobblee);
+      gobbled -> add(gobblee);
       pthread_mutex_unlock(&m);
     }
   }
   gobbler_is_done = true;
+  printf("I'M DONE GOBBLING!\n");
   return NULL;
 }
 
 /* Consumer
  * Write buffer to file. */
-//void * consumer(void * arg) {
-//  while(!producer_is_done) {}
-//  return NULL;
-//}
+void * consumer(void * arg) {
+  while (!gobbler_is_done || !gobbled -> isEmpty()) {
+    char * consumee;
+    
+    /* Reading in from queue. */
+    while (gobbled -> isEmpty()) { if(gobbler_is_done) break; }
+    
+    pthread_mutex_lock(&m);
+    consumee = gobbled -> remove();
+    pthread_mutex_unlock(&m);
+    
+    if (consumee != NULL) {
+      /* Print to stdout. */
+      // printf("%s\n", consumee);
+    }
+  }
+  printf("I'M DONE CONSUMING!\n");
+  return NULL;
+}
 
 /* Main
  * Create and join threads. */
@@ -127,13 +145,13 @@ int main() {
   pthread_create(&a, NULL, &producer, NULL);
   pthread_create(&b, NULL, &crunch, NULL);
   pthread_create(&c, NULL, &gobble, NULL);
-//  pthread_create(&d, NULL, &consumer, NULL);
+  pthread_create(&d, NULL, &consumer, NULL);
   
   /* Join threads. */
   pthread_join(a, NULL);
   pthread_join(b, NULL);
   pthread_join(c, NULL);
-//  pthread_join(d, NULL);
+  pthread_join(d, NULL);
 
   return 0;
 }
