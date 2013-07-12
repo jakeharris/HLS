@@ -8,14 +8,17 @@
 
 using namespace std;
 
+/* Initialize variables. */
 pthread_mutex_t m;
 pthread_t a, b, c, d;
 bool producer_is_done = false;
 BufferQueue * produced;
-//BufferQueue * crunched;
-//BufferQueue * gobbled;
+BufferQueue * crunched;
+// BufferQueue * gobbled;
 int numLines = 0;
 
+/* Producer
+ * Read lines from stdin. */
 void * producer(void * arg) {
   /* SETUP */
   pthread_mutex_lock(&m);
@@ -25,7 +28,7 @@ void * producer(void * arg) {
 
   /* Queue allocation */
   produced = new BufferQueue();
-//  crunched = new BufferQueue();
+  crunched = new BufferQueue();
 //  gobbled = new BufferQueue();
   
   pthread_mutex_unlock(&m);
@@ -40,9 +43,9 @@ void * producer(void * arg) {
     while (produced -> isFull()) { cout << "."; }
     cout << endl;
     
-//    pthread_mutex_lock(&m);
-//    produced -> add(str);
-//    pthread_mutex_unlock(&m);
+    pthread_mutex_lock(&m);
+//    produced -> add(str); // <-- THIS LINE CAUSES A SEGFAULT!!!
+    pthread_mutex_unlock(&m);
   }
   
   cout << "Number of lines: " << numLines << endl;
@@ -51,12 +54,14 @@ void * producer(void * arg) {
   return NULL;
 }
 
-//void * crunch(void * arg) {
-//  while (!producer_is_done && !produced -> isEmpty()) {
+/* Crunch
+ * Replace whitespace with stars. */
+void * crunch(void * arg) {
+//  while (!producer_is_done && !produced -> isEmpty()) { // <-- THIS LINE CAUSES A SEGFAULT!!!
 //    char * crunchee;
 //    
 //    /* Reading in from queue. */
-//    while(produced->isEmpty()) { }
+//    while(produced -> isEmpty()) {}
 //    
 //    pthread_mutex_lock(&m);
 //    crunchee = produced -> remove();
@@ -74,28 +79,34 @@ void * producer(void * arg) {
 //      pthread_mutex_unlock(&m);
 //    }
 //  } 
-//  return NULL;
-//}
-//
+  return NULL;
+}
+
+/* Gobble
+ * Uppercase everything. */
 //void * gobble(void * arg) {
 //  return NULL;
 //}
-//
+
+/* Consumer
+ * Write buffer to file. */
 //void * consumer(void * arg) {
 //  while(!producer_is_done) {}
 //  return NULL;
 //}
 
+/* Main
+ * Create and join threads. */
 int main() {
   /* Make threads. */
   pthread_create(&a, NULL, &producer, NULL);
-//  pthread_create(&b, NULL, &crunch, NULL);
+  pthread_create(&b, NULL, &crunch, NULL);
 //  pthread_create(&c, NULL, &gobble, NULL);
 //  pthread_create(&d, NULL, &consumer, NULL);
   
   /* Join threads. */
   pthread_join(a, NULL);
-//  pthread_join(b, NULL);
+  pthread_join(b, NULL);
 //  pthread_join(c, NULL);
 //  pthread_join(d, NULL);
 
