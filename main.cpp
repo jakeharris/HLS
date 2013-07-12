@@ -37,7 +37,7 @@ void * producer(void * arg) {
     char * str = new char[line.length() + 1];
     strcpy(str, line.c_str());
     cout << "Waiting.";
-    while (produced->isFull()) { cout << "."; }
+    while (produced -> isFull()) { cout << "."; }
     cout << endl;
     
     pthread_mutex_lock(&m);
