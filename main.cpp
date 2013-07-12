@@ -139,6 +139,9 @@ void * consumer(void * arg) {
 /* Main
  * Create and join threads. */
 int main() {
+  /* Init mutex. */
+  pthread_mutex_init(&m, NULL);
+  
   /* Make threads. */
   pthread_create(&a, NULL, &producer, NULL);
   pthread_create(&b, NULL, &crunch, NULL);
@@ -151,5 +154,8 @@ int main() {
   pthread_join(c, NULL);
   pthread_join(d, NULL);
 
+  /* Destroy mutex. */
+  pthread_mutex_destroy(&m);
+  
   return 0;
 }
