@@ -50,7 +50,7 @@ char* BufferQueue::remove(){
   char* output;
   if(buffer[head] == NULL){
     cout << "Error: Buffer is empty.\n";
-    return "";
+    return (char *) "";
   }
 /* If head has reached the end check if the first index of
 the buffer is available; if so store in first index. */
@@ -77,7 +77,7 @@ bool BufferQueue::isFull(){
 
 bool BufferQueue::isEmpty(){
   for(int x = 0; x < 10; x++){
-    if(buffer[x] != NULL || buffer[x] == "") return false;
+    if(buffer[x] != NULL || strcmp(buffer[x], "") == 0) return false;
   }
   return true;
 }
