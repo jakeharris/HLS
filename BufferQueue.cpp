@@ -7,12 +7,13 @@ using namespace std;
 
 class BufferQueue { 
     static const int X = 10; // the constant size of the buffer
-    char* buffer[X];         // declaration of the buffer
+    char** buffer;           // declaration of the buffer
     int head;                // tracks the head of the buffer
     int tail;                // tracks the tail of the buffer
   
   public:
     BufferQueue();
+    ~BufferQueue() { free(buffer); } // destructor
     void add(char sInput[]); // adds an item to the buffer
     char* remove();          // removes an item from the buffer
     bool isFull();           // returns true if buffer array is full
@@ -22,6 +23,7 @@ class BufferQueue {
 
 /* Constructor */
 BufferQueue::BufferQueue() {
+  buffer = (char **) malloc(10 * sizeof(char *));
   head = -1;
   tail = -1;
 }
@@ -46,7 +48,7 @@ void BufferQueue::add(char sInput[]) {
   
   /* If neither then the buffer is full. */
   else {
-    printf("Error: Buffer is full.\n");
+    // printf("Error: Buffer is full.\n");
   }
 }
 
@@ -54,7 +56,7 @@ char* BufferQueue::remove() {
   /* If head == tail then buffer is empty. */
   char* output;
   if (isEmpty()) {
-    printf("Error: Buffer is empty.\n");
+    // printf("Error: Buffer is empty.\n");
     return (char *) "";
   }
   

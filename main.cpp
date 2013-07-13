@@ -19,6 +19,7 @@ int numLines = 0;
 bool producer_is_done = false;
 bool cruncher_is_done = false;
 bool gobbler_is_done = false;
+bool consumer_is_done = false;
 bool EVERYTHING_WORKS = false;
 
 /* Producer
@@ -53,9 +54,11 @@ void * producer(void * arg) {
     produced -> add(str);
     pthread_mutex_unlock(&m);
   }
-
-  printf("Number of lines: %u\n", numLines);
+  
   producer_is_done = true;
+  
+  while (!consumer_is_done) { }
+  printf("Number of lines: %u\n", numLines);
   return NULL;
 }
 
@@ -135,6 +138,7 @@ void * consumer(void * arg) {
       printf("%s\n", consumee);
     }
   }
+  consumer_is_done = true;
   return NULL;
 }
 
