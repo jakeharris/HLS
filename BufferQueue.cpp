@@ -53,7 +53,7 @@ void BufferQueue::add(char sInput[]) {
 char* BufferQueue::remove() {
   /* If head == tail then buffer is empty. */
   char* output;
-  if (buffer[head] == NULL) {
+  if (isEmpty()) {
     printf("Error: Buffer is empty.\n");
     return (char *) "";
   }
@@ -61,14 +61,14 @@ char* BufferQueue::remove() {
   /* If head has reached the end check if the first index of the buffer is available; if so store in first index. */
   else if ((head == (X - 1)) && (tail != 0)) {
     output = buffer[head];
-    buffer[head] = (char *) "";
+    buffer[head] = NULL;
     head = 0;
   }
   
   /* Else remove current head index from buffer, and increment head. */
   else {
     output = buffer[head];
-    buffer[head] = (char *) "";
+    buffer[head] = NULL;
     head++;
   }
   

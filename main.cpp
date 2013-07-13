@@ -19,6 +19,7 @@ int numLines = 0;
 bool producer_is_done = false;
 bool cruncher_is_done = false;
 bool gobbler_is_done = false;
+bool EVERYTHING_WORKS = false;
 
 /* Producer
  * Read lines from stdin. */
@@ -33,6 +34,7 @@ void * producer(void * arg) {
   produced = new BufferQueue();
   crunched = new BufferQueue();
   gobbled = new BufferQueue();
+  EVERYTHING_WORKS = true;
   
   pthread_mutex_unlock(&m);
   /* END SETUP */
@@ -144,6 +146,9 @@ int main() {
   
   /* Make threads. */
   pthread_create(&a, NULL, &producer, NULL);
+  
+  while (EVERYTHING_WORKS == false) { }
+  
   pthread_create(&b, NULL, &crunch, NULL);
   pthread_create(&c, NULL, &gobble, NULL);
   pthread_create(&d, NULL, &consumer, NULL);
